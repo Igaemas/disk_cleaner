@@ -4,18 +4,21 @@ function Disk-Cleaner {
 
 $GlobalDiskView = Get-WmiObject -Class Win32_LogicalDisk
 
-	Foreach($Disk in $GlobalDiskView){
+	$DiskListArray = @()
+
+  Foreach($Disk in $GlobalDiskView){
     $DiskSpace = ($Disk.Size/1GB).ToString('F0')
  		$DiskFreeSpace = ($Disk.freespace/1GB).ToString('F0')
    	$DeviceID = $Disk.DeviceID
     $DeviceName = $Disk.Name
-
+    $DriveLetter = $DeviceID.Substring(0,$DeviceID.Length-1)
+    
     $SpaceDiskUsedPourcent = (100 - ((($Disk.FreeSpace/1GB) * 100)/($Disk.Size/1GB))).ToString('F0')
 
     Write-Host "disque $DeviceID :"
     Write-Host "	nom du disque : $DeviceName"
     Write-Host "	capatité disque : $SpaceDiskUsedPourcent%"
-
+    
     If($SpaceDiskUsedPourcent -ge $CriticalCapacity)
     {
      	$CapacityState = "CRITICAL"
@@ -25,7 +28,14 @@ $GlobalDiskView = Get-WmiObject -Class Win32_LogicalDisk
     Write-Host "	état du disque : $CapacityState"
 	  Write-Host "  "
 	  
-	}
+    $DiskListArray += $DriveLetter
+    
+  }
+
+  write-host "Supression des Recycle.Bin"
+  foreach($DiskLetter in $DiskListArray){
+	  Clear-RecycleBin -Force -DriveLetter $DiskLetter
+  }
 }
 
 Disk-Cleaner
