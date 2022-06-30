@@ -2,7 +2,7 @@
 
 function Disk-Cleaner {
 
-$GlobalDiskView = Get-WmiObject -Class Win32_LogicalDisk
+  $GlobalDiskView = Get-WmiObject -Class Win32_LogicalDisk
 
 	$DiskListArray = @()
 
@@ -35,6 +35,10 @@ $GlobalDiskView = Get-WmiObject -Class Win32_LogicalDisk
   write-host "Supression des Recycle.Bin"
   foreach($DiskLetter in $DiskListArray){
 	  Clear-RecycleBin -Force -DriveLetter $DiskLetter
+    Get-ChildItem "$DeviceID\Windows\SoftwareDistribution\Download\" 
+    #| Remove-Item -recurse -force
+    Get-ChildItem "$DeviceID:\Windows\Temp\"
+    #| Remove-Item -recurse -force
   }
 }
 
